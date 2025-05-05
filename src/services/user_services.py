@@ -11,4 +11,17 @@ class UserService:
     def save(self, user):
             self.user_repository.save(user)
 
+    def get_all(self):
+        return self.user_repository.get_all()
+
+    def get_by_id(self, user_id: int):
+        return self.user_repository.get_by_id(user_id)
+    def get_by_name(self, name: str):
+        return self.user_repository.get_by_name(name)
+
+    def update(self, user):
+        self.user_repository.update(user)
+
+    def delete(self, user_id: int):
+        self.user_repository.delete(user_id)
 
