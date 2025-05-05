@@ -20,7 +20,7 @@ class UserRepository(ABC):
     def save(self, user: User):
         pass
 
-    #Read
+    # Read
     @abstractmethod
     def get_all(self):
         pass

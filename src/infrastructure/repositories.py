@@ -21,6 +21,11 @@ class SQLAlchemyUserRepository(UserRepository):
       self.session.commit()
       user.id = user_model.id
 
+  def get_all(self):
+      user_models = self.session.query(UserModel).all()
+      return [User(id=user_model.id, name=user_model.name, assigned_tasks=user_model.assigned_tasks) for user_model in user_models]
+
+
   def get_by_id(self, user_id: int):
       user_model = self.session.query(UserModel).filter_by(id=user_id).first()
       if not user_model:
@@ -29,6 +34,36 @@ class SQLAlchemyUserRepository(UserRepository):
           id=user_model.id,
           name=user_model.name,
           assigned_tasks=user_model.assigned_tasks)
+
+  def get_by_name(self, name: str):
+      user_model = self.session.query(UserModel).filter_by(name=name).first()
+      if not user_model:
+          return None
+      return User(
+          id=user_model.id,
+          name=user_model.name,
+          assigned_tasks=user_model.assigned_tasks)
+
+  def update(self, user: User):
+      user_model = self.session.query(UserModel).filter_by(id=user.id).first()
+      if not user_model:
+          return None
+      user_model.name = user.name
+      self.session.commit()
+      return User(
+          id=user_model.id,
+          name=user_model.name,
+          assigned_tasks=user_model.assigned_tasks)
+
+
+  def delete(self, user_id: int):
+      user_model = self.session.query(UserModel).filter_by(id=user_id).first()
+      if not user_model:
+          return None
+      self.session.delete(user_model)
+      self.session.commit()
+      return True
+
 
 
 def get_db():
