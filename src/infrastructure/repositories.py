@@ -21,10 +21,6 @@ class SQLAlchemyUserRepository(UserRepository):
       self.session.commit()
       user.id = user_model.id
 
-  # Dependency
-
-
-
   def get_by_id(self, user_id: int):
       user_model = self.session.query(UserModel).filter_by(id=user_id).first()
       if not user_model:
