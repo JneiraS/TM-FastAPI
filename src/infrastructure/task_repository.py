@@ -70,8 +70,3 @@ class SQLAlchemyTaskRepository:
         if task_model:
             self.session.delete(task_model)
             self.session.commit()
-
-
-# def get_task_service(db: Session = Depends(get_db)):
-#     task_repo = SQLAlchemyTaskRepository(db)
-#     return new_task_services(task_repo)

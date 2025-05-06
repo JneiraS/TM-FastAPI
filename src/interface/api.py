@@ -15,6 +15,9 @@ def read_root():
     return {"message": "Bienvenue sur l'API de gestion des utilisateurs."}
 
 
+# -----USERS-----
+
+
 @router.post("/user/", response_model=dict)
 async def create_user(
     user_data: UserSchema,
@@ -59,6 +62,9 @@ async def update_user(
     return {"message": "User mis à jour avec succès.", "success": True}
 
 
+# -----TASKS-----
+
+
 @router.post("/task/", response_model=dict)
 async def create_task(
     task_data: TaskSchema,
@@ -77,3 +83,14 @@ async def create_task(
     )
     task_service.save(task)
     return {"message": "Task créé avec succès."}
+
+
+@router.get("/task/", response_model=list[TaskSchema])
+async def get_all_task(
+    task_service: Annotated[TaskService, Depends(get_task_service)],
+):
+    tasks = task_service.get_all()
+    # Convert the priority value back to an enum value
+    for task in tasks:
+        task.priority = int(task.priority)
+    return tasks
