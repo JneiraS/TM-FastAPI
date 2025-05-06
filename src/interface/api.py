@@ -24,7 +24,7 @@ async def create_user(
         id=user_data.id, name=user_data.name, assigned_tasks=user_data.assigned_tasks
     )
     user_service.save(user)
-    return {"message": "User created successfully"}
+    return {"message": "User créé avec succès."}
 
 
 @router.get("/user/{user_id}", response_model=UserSchema)
@@ -34,3 +34,25 @@ async def get_user(
 ):
     user = user_service.get_by_id(user_id)
     return UserSchema.from_domain(user)
+
+
+@router.put("/user/{user_id}", response_model=dict)
+async def update_user(
+    user_id: int,
+    user_data: UserSchema,
+    user_service: Annotated[UserService, Depends(get_user_service)],
+):
+    # Verifier si l'utilisateur existe
+    existing_user = user_service.get_by_id(user_id)
+    if not existing_user:
+        return {"message": "Aucun User trouvé", "success": False}, 404
+
+    # Update user with new data
+    updated_user = User(
+        id=user_id, name=user_data.name, assigned_tasks=user_data.assigned_tasks
+    )
+
+    # Enregistrez l'utilisateur mis à jour
+    user_service.update(updated_user)
+
+    return {"message": "User mis à jour avec succès.", "success": True}
