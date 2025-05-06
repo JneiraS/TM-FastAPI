@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends
 from sqlalchemy.orm import Session, sessionmaker
 from typing import List, Optional
 
