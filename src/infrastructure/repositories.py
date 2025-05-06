@@ -7,7 +7,7 @@ from src.domain.models import User
 from src.domain.exceptions import UserNotFoundError
 from src.infrastructure.sqlalchemy_models import UserModel
 from src.services.user_services import new_user_services
-from src.infrastructure.persistence.db import engine
+from src.infrastructure.persistence.db import engine, get_db
 
 # Create a sessionmaker bound to your engine
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -40,7 +40,7 @@ class UserMapper:
         return UserModel(
             id=user.id,
             name=user.name,
-            # Autres champs si nécessaire
+            assigned_tasks=user.assigned_tasks,
         )
 
 
@@ -127,17 +127,6 @@ class SQLAlchemyUserRepository(UserRepository):
         self.session.delete(user_model)
         self.session.commit()
         return True
-
-
-def get_db():
-    """
-    Crée et gère une session de base de données.
-    """
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def get_user_service(db: Session = Depends(get_db)):

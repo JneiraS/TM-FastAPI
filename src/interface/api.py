@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends
 from typing import Annotated
 
-from src.domain.models import User
-from src.domain.schemas import UserSchema
+from src.domain.models import User, Task, Priority
+from src.domain.schemas import UserSchema, TaskSchema
 from src.infrastructure.repositories import get_user_service
+from src.services.task_services import TaskService, get_task_service
 from src.services.user_services import UserService
 
 router = APIRouter()
@@ -56,3 +57,23 @@ async def update_user(
     user_service.update(updated_user)
 
     return {"message": "User mis à jour avec succès.", "success": True}
+
+
+@router.post("/task/", response_model=dict)
+async def create_task(
+    task_data: TaskSchema,
+    task_service: Annotated[TaskService, Depends(get_task_service)],
+):
+    # Convertir En Enum
+    priority = Priority(task_data.priority)
+
+    # Convertir le modèle Pydantic en modèle de domaine
+    task = Task(
+        id=task_data.id,
+        title=task_data.title,
+        priority=priority.value,
+        assigned_to=task_data.assigned_to,
+        completed=task_data.completed,
+    )
+    task_service.save(task)
+    return {"message": "Task créé avec succès."}
