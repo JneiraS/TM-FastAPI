@@ -77,7 +77,7 @@ async def update_user(
 # -----TASKS-----
 
 
-@router.post("/task/", response_model=dict)
+@router.post("/tasks/", response_model=dict)
 async def create_task(
     task_data: TaskSchema,
     task_service: Annotated[TaskService, Depends(get_task_service)],
@@ -94,10 +94,10 @@ async def create_task(
         completed=task_data.completed,
     )
     task_service.save(task)
-    return {"message": "Task créé avec succès."}
+    return {"message": "Task créé avec succès.", "task": task.to_dict()}
 
 
-@router.get("/task/", response_model=list[TaskSchema])
+@router.get("/tasks/", response_model=list[TaskSchema])
 async def get_all_task(
     task_service: Annotated[TaskService, Depends(get_task_service)],
 ):
@@ -108,7 +108,7 @@ async def get_all_task(
     return tasks
 
 
-@router.put("/task/{task_id}", response_model=dict)
+@router.put("/tasks/{task_id}", response_model=dict)
 async def update_task(
     task_id: int,
     task_data: TaskSchema,

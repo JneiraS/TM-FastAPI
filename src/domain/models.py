@@ -23,3 +23,12 @@ class Task:
         self.priority = priority
         self.assigned_to = assigned_to
         self.completed = completed
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "priority": self.priority,
+            "assigned_to": self.assigned_to,
+            "completed": self.completed,
+        }
