@@ -23,7 +23,6 @@ class TaskSchema(BaseModel):
     title: str
     priority: Priority
     completed: bool
-    assigned_tasks: Optional[List[int]] = []
 
     @classmethod
     def from_domain(cls, task: Task) -> "TaskSchema":

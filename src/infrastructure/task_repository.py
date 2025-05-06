@@ -44,12 +44,30 @@ class SQLAlchemyTaskRepository:
     def __init__(self, session: Session):
         self.session = session
 
-    def save(self, task: Task):
-        task_model = TaskMapper.to_infrastructure(task)
+    def save(self, task: Task) -> None:
+        """
+        Enregistre une nouvelle tâche dans la base de données.
+        """
+        # Validate task data
+        if not task.title or len(task.title.strip()) == 0:
+            raise ValueError("Task title ne peut pas être vide.")
+
+        # Either let the database assign an ID automatically by setting it to None
+        task_to_save = Task(
+            id=None if task.id == 0 else task.id,
+            title=task.title,
+            priority=task.priority,
+            assigned_to=task.assigned_to,
+            completed=task.completed,
+        )
+
+        # Convert domain object to database model
+        task_model = TaskMapper.to_infrastructure(task_to_save)
+
+        # Save to database
         self.session.add(task_model)
         self.session.commit()
         self.session.refresh(task_model)
-        return TaskMapper.to_domain(task_model)
 
     def get_all(self) -> List[Task]:
         task_models = self.session.query(TaskModel).all()

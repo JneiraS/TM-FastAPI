@@ -26,10 +26,19 @@ class UserMapper:
         """
         if not user_model:
             return None
+
+        # Convert TaskModel objects to task IDs
+        assigned_tasks = []
+        if hasattr(user_model, "assigned_tasks") and user_model.assigned_tasks:
+            assigned_tasks = [
+                task.id if hasattr(task, "id") else task
+                for task in user_model.assigned_tasks
+            ]
+
         return User(
             id=user_model.id,
             name=user_model.name,
-            assigned_tasks=user_model.assigned_tasks,
+            assigned_tasks=assigned_tasks,
         )
 
     @staticmethod

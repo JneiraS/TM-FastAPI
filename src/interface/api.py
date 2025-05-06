@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from typing import Annotated
 
+from src.domain.exceptions import UserNotFoundError
 from src.domain.models import User, Task, Priority
 from src.domain.schemas import UserSchema, TaskSchema
 from src.infrastructure.repositories import get_user_service
@@ -36,8 +37,19 @@ async def get_user(
     user_id: int,
     user_service: Annotated[UserService, Depends(get_user_service)],
 ):
-    user = user_service.get_by_id(user_id)
-    return UserSchema.from_domain(user)
+    try:
+        user = user_service.get_by_id(user_id)
+        if not isinstance(user, User):
+            # Log the actual type for debugging
+            print(f"Expected User object but got {type(user)}")
+            raise HTTPException(
+                status_code=500, detail="Internal server error: Invalid user data type"
+            )
+        return UserSchema.from_domain(user)
+    except UserNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 
 @router.put("/user/{user_id}", response_model=dict)
@@ -90,7 +102,32 @@ async def get_all_task(
     task_service: Annotated[TaskService, Depends(get_task_service)],
 ):
     tasks = task_service.get_all()
-    # Convert the priority value back to an enum value
+
     for task in tasks:
         task.priority = int(task.priority)
     return tasks
+
+
+@router.put("/task/{task_id}", response_model=dict)
+async def update_task(
+    task_id: int,
+    task_data: TaskSchema,
+    task_service: Annotated[TaskService, Depends(get_task_service)],
+):
+    # Verifier si la tache existe
+    existing_task = task_service.get_by_id(task_id)
+    if not existing_task:
+        return {"message": "Aucune tache trouvée", "success": False}, 404
+    # Update task with new data
+    updated_task = Task(
+        id=task_id,
+        title=task_data.title,
+        priority=task_data.priority.value,
+        assigned_to=task_data.assigned_to,
+        completed=task_data.completed,
+    )
+
+    # Enregistrez l'utilisateur mis à jour
+    task_service.update(updated_task)
+
+    return {"message": "Task mis à jour avec succès.", "success": True}
