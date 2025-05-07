@@ -131,3 +131,19 @@ async def update_task(
     task_service.update(updated_task)
 
     return {"message": "Task mis à jour avec succès.", "success": True}
+
+
+@router.delete("/tasks/{task_id}", response_model=dict)
+async def delete_task(
+    task_id: int,
+    task_service: Annotated[TaskService, Depends(get_task_service)],
+):
+    # Verifier si la tache existe
+    existing_task = task_service.get_by_id(task_id)
+    if not existing_task:
+        return {"message": "Aucune tache trouvée", "success": False}, 404
+
+    # Supprimer la tache
+    task_service.delete(task_id)
+
+    return {"message": "Task supprimée avec succès.", "success": True}
