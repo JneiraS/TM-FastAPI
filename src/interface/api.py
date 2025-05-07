@@ -32,6 +32,14 @@ async def create_user(
     return {"message": "User créé avec succès."}
 
 
+@router.get("/user/", response_model=list[UserSchema])
+async def get_all_users(
+    user_service: Annotated[UserService, Depends(get_user_service)],
+):
+    users = user_service.get_all()
+    return [UserSchema.from_domain(user) for user in users]
+
+
 @router.get("/user/{user_id}", response_model=UserSchema)
 async def get_user(
     user_id: int,
